@@ -8,6 +8,7 @@ import logging
 import struct
 from enum import Enum
 from typing import Iterable, Optional
+import re
 
 import serial
 
@@ -107,7 +108,7 @@ class PySerialJetiClient:
     def request_float_value(self, command: str) -> float:
         payload = self.request_single_line(command)
         try:
-            return float(payload)
+            return float(parse_float_value(payload))
         except ValueError as exc:
             raise ValueError(
                 f"expected numeric response for {command!r}, got {payload!r}"
@@ -309,3 +310,13 @@ class PySerialJetiClient:
             CommandCategory.HELP, command, is_getter=True
         )
         return self.request_single_line(payload)
+
+def parse_float_value(msg: str):
+    try:
+        result = re.findall(r'[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+', msg)
+        print(result)
+        if len(result) == 0:
+            raise ValueError(f"Expected to find a floating point number, instead found '{msg}'")
+        return result[0]
+    except Exception as e:
+        raise ValueError(f"Parsing message '{msg}' for a floating point number raise exception {e}")
