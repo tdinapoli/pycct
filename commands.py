@@ -2,8 +2,9 @@ from enum import Enum, auto
 
 
 class _StrEnum(str, Enum):
-    def _generate_next_value_(self, name: str, start: int, count: int, last_values: list) -> str:  # type: ignore[override]
-        return name
+    @staticmethod
+    def _generate_next_value_(name, start, count, last_values) -> str:  # type: ignore[override]
+        return name.lower()
 
 
 class CommandCategory(_StrEnum):
