@@ -1,0 +1,12 @@
+[workspace]
+authors = ["Hernan Grecco <hgrecco@gmail.com>"]
+channels = ["conda-forge"]
+name = "PyCCTDecompiled"
+platforms = ["osx-arm64"]
+version = "0.1.0"
+
+[tasks]
+
+[dependencies]
+python = "==3.12"
+pyserial = ">=3.5,<4"
