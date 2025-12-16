@@ -18,6 +18,7 @@ from commands import (
     GeneralCommand,
     HelpCommand,
     MeasureCommand,
+    MeasureRawDataFormat,
     MemoryCommand,
     ParameterCommand,
     ParameterSubCommand,
