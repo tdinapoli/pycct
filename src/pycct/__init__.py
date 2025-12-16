@@ -1,4 +1,3 @@
-from .spectrometer import Spectrometer
-from .pyserial_client import PySerialJetiClient
+from pycct import commands, pyserial_client, spectrometer
 
-__all__ = ["Spectrometer", "PySerialJetiClient"]
+__all__ = ["pyserial_client", "commands", "spectrometer"]
