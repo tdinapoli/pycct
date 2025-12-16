@@ -300,23 +300,24 @@ class PySerialJetiClient:
         return self.request_binary_word(payload)
 
     def status_string(self, command: StatusCommand) -> str:
-        payload = self._build_command(
-            CommandCategory.STATUS, command, is_getter=True
-        )
+        payload = self._build_command(CommandCategory.STATUS, command, is_getter=True)
         return self.request_single_line(payload)
 
     def help_string(self, command: HelpCommand) -> str:
-        payload = self._build_command(
-            CommandCategory.HELP, command, is_getter=True
-        )
+        payload = self._build_command(CommandCategory.HELP, command, is_getter=True)
         return self.request_single_line(payload)
+
 
 def parse_float_value(msg: str):
     try:
-        result = re.findall(r'[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+', msg)
+        result = re.findall(r"[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+", msg)
         print(result)
         if len(result) == 0:
-            raise ValueError(f"Expected to find a floating point number, instead found '{msg}'")
+            raise ValueError(
+                f"Expected to find a floating point number, instead found '{msg}'"
+            )
         return result[0]
     except Exception as e:
-        raise ValueError(f"Parsing message '{msg}' for a floating point number raise exception {e}")
+        raise ValueError(
+            f"Parsing message '{msg}' for a floating point number raise exception {e}"
+        )
