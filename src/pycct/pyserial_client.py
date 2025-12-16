@@ -12,7 +12,7 @@ import re
 
 import serial
 
-from commands import (
+from .commands import (
     CalculateSubCommand,
     CommandCategory,
     ControlCommand,

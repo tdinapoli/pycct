@@ -5,7 +5,7 @@ from typing import Any, Iterable, Self
 
 import numpy as np
 
-from commands import (
+from .commands import (
     CalculateCommand,
     CalculateSubCommand,
     CalibrateCommand,
@@ -23,7 +23,7 @@ from commands import (
     ParameterSubCommand,
     StatusCommand,
 )
-from pyserial_client import PySerialJetiClient
+from .pyserial_client import PySerialJetiClient
 
 _FLOAT_RESPONSE_PARAMETERS = {
     ParameterCommand.ADCR,
