@@ -406,13 +406,13 @@ class Spectrometer:
     def read_params(self) -> SpectrometerParams:
         wavelengths = self.compute_wavelenghts()
         fit_constants = self.get_fit_constants()
-        pixels = self.read_parameter(ParameterCommand.PIXEL)
+        pixels = int(self.read_parameter(ParameterCommand.PIXEL))
         vers = self.get_vers()
-        model = self.read_parameter(ParameterCommand.SPNUM)
-        devnum = self.read_parameter(ParameterCommand.DEVNUM)
-        gain = self.read_parameter(ParameterCommand.GAIN)
-        offset_mv = self.read_parameter(ParameterCommand.OFFS)
-        adc_resolution = self.read_parameter(ParameterCommand.ADCR)
+        model = str(self.read_parameter(ParameterCommand.SPNUM))
+        devnum = str(self.read_parameter(ParameterCommand.DEVNUM))
+        gain = float(self.read_parameter(ParameterCommand.GAIN))
+        offset_mv = float(self.read_parameter(ParameterCommand.OFFS))
+        adc_resolution = int(self.read_parameter(ParameterCommand.ADCR))
         amplitude_correction = self.get_amplitude_correction()
         return SpectrometerParams(
             wavelengths=wavelengths,
