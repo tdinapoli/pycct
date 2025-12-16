@@ -61,6 +61,12 @@ class Spectrometer:
             port=port, baudrate=baudrate, timeout=timeout, line_ending=line_ending
         )
 
+        # TODO: enclose this behavior and data in a configuration class/method
+        self._client.write_command(
+            self._build_command(CommandCategory.PARAMETER, ParameterCommand.PIXEL)
+        )
+        self._n_pixels = int(self._client.read_text_line())
+
     def __enter__(self) -> Self:
         self._client.__enter__()
         return self
