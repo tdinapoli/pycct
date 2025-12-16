@@ -24,7 +24,6 @@ from commands import (
 from pyserial_client import PySerialJetiClient
 
 
-
 _FLOAT_RESPONSE_PARAMETERS = {
     ParameterCommand.ADCR,
     ParameterCommand.AVER,
@@ -41,7 +40,6 @@ _FLOAT_RESPONSE_PARAMETERS = {
 _MULTI_LINE_RESPONSE_PARAMETERS = {ParameterCommand.ALLPARA}
 
 _BOOLEAN_RESPONSE_PARAMETERS = {ParameterCommand.LAMPE}
-
 
 
 class Spectrometer:
@@ -82,7 +80,9 @@ class Spectrometer:
         """Generate the ASCII command string for a given category."""
 
         command_name = command.value if isinstance(command, Enum) else str(command)
-        normalized_args = [str(argument) for argument in args] if args is not None else None
+        normalized_args = (
+            [str(argument) for argument in args] if args is not None else None
+        )
         return self._client._build_command(
             category,
             command_name,
@@ -99,9 +99,7 @@ class Spectrometer:
         args: Iterable[str] | None = None,
     ) -> str | None:
         """Low-level wrapper for GENERAL category commands."""
-        return self._client.general_string(
-            command, args=args, is_getter=is_getter
-        )
+        return self._client.general_string(command, args=args, is_getter=is_getter)
 
     def parameter(
         self,
@@ -263,7 +261,6 @@ class Spectrometer:
         )
         return self._client.request_single_line(payload)
 
-
     def identify(self) -> Any:
         """Return the device identification string that includes model/vendor info."""
         return self.general(GeneralCommand.IDN)
@@ -326,7 +323,9 @@ class Spectrometer:
         subcommand: ParameterSubCommand | None = None,
     ) -> bool:
         """Convenience helper to write boolean parameters via the shared writer."""
-        return self.write_parameter(command, "1" if value else "0", subcommand=subcommand)
+        return self.write_parameter(
+            command, "1" if value else "0", subcommand=subcommand
+        )
 
     def read_parameter_str(
         self,
