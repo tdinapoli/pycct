@@ -1,8 +1,9 @@
 import struct
 import time
 from enum import Enum
-from typing import Any, Iterable, Self
+from typing import Any, Iterable, Self, Sequence
 from dataclasses import dataclass
+import itertools
 
 import numpy as np
 from numpy.typing import NDArray
@@ -48,10 +49,10 @@ _BOOLEAN_RESPONSE_PARAMETERS = {ParameterCommand.LAMPE}
 @dataclass(frozen=True)
 class SpectrometerParams:
     wavelengths: np.ndarray
-    fit_params: tuple[float, ...]
-    n_pixels: int
-    amplitude_correction: NDArray
-    version: str
+    fit_constants: Sequence[float]
+    pixels: int
+    amplitude_correction: NDArray[np.float64]
+    vers: str
     model: str
     devnum: str
     gain: float
@@ -404,6 +405,30 @@ class Spectrometer:
             command,
             subcommand=subcommand,
             args=args,
+        )
+
+    def read_params(self) -> SpectrometerParams:
+        wavelengths = self.compute_wavelenghts()
+        fit_constants = self.get_fit_constants()
+        pixels = self.read_parameter(ParameterCommand.PIXEL)
+        vers = self.get_vers()
+        model = self.read_parameter(ParameterCommand.SPNUM)
+        devnum = self.read_parameter(ParameterCommand.DEVNUM)
+        gain = self.read_parameter(ParameterCommand.GAIN)
+        offset_mv = self.read_parameter(ParameterCommand.OFFS)
+        adc_resolution = self.read_parameter(ParameterCommand.ADCR)
+        amplitude_correction = self.get_amplitude_correction()
+        return SpectrometerParams(
+            wavelengths=wavelengths,
+            fit_constants=fit_constants,
+            pixels=pixels,
+            vers=vers,
+            model=model,
+            devnum=devnum,
+            gain=gain,
+            offset_mv=offset_mv,
+            adc_resolution=adc_resolution,
+            amplitude_correction=amplitude_correction,
         )
 
     def compute_wavelenghts(self) -> list[float]:
