@@ -174,12 +174,16 @@ class PySerialJetiClient:
         is_getter: bool = True,
     ) -> str:
         command_name = command.value
-        normalized_args = [str(argument) for argument in args] if args is not None else []
+        normalized_args = (
+            [str(argument) for argument in args] if args is not None else []
+        )
         sub_arg: Optional[str] = None
         if subcommand and subcommand != ParameterSubCommand.NONE:
             if subcommand == ParameterSubCommand.POLY:
                 if not normalized_args:
-                    raise ValueError("Poly parameter requires an appended index argument.")
+                    raise ValueError(
+                        "Poly parameter requires an appended index argument."
+                    )
                 suffix = normalized_args.pop(0)
                 command_name = f"{command_name}{suffix}"
             else:
