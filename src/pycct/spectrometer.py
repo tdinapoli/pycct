@@ -443,7 +443,7 @@ class Spectrometer:
         tint: float,
         averages: int,
         data_format: MeasureRawDataFormat = MeasureRawDataFormat.SHORTS,
-    ) -> tuple[int, list[float]]:
+    ) -> tuple[int, list[float], list[float]]:
         """Acquire single spectrum. Returns a timestamp in microseconds and a list of counts"""
         command = self._client._build_command(
             CommandCategory.MEASURE,
@@ -460,7 +460,11 @@ class Spectrometer:
         if len(header + timestamp + footer) != 12:
             raise RuntimeError("could not properly read bytes before data")
         timestamp = int(struct.unpack("I", timestamp)[0])
-        result = (timestamp, self._decode_spectrum(data_format))
+        result = (
+            timestamp,
+            self.spec_params.wavelengths,
+            self._decode_spectrum(data_format),
+        )
         self._client._serial.reset_input_buffer()
         return result
 
