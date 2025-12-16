@@ -1,12 +1,23 @@
 [workspace]
 authors = ["Hernan Grecco <hgrecco@gmail.com>"]
 channels = ["conda-forge"]
-name = "PyCCTDecompiled"
-platforms = ["osx-arm64"]
+name = "pycct"
+platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
+preview = ["pixi-build"]
 
-[tasks]
+[package.build]
+backend = { name = "pixi-build-python", version = "0.4.*"}
 
-[dependencies]
+[package.host-dependencies]
+uv = "*"
+
+[package.run-dependencies]
 python = "==3.12"
 pyserial = ">=3.5,<4"
+
+[dependencies]
+pycct = { path = "." }
+numpy = ">=2.3.5,<3"
+matplotlib = ">=3.10.8,<4"
+ipykernel = ">=7.1.0,<8"
