@@ -1,4 +1,6 @@
 from enum import Enum
+import struct
+import time
 from typing import Any, Iterable, Self
 
 from commands import (
@@ -17,6 +19,7 @@ from commands import (
     ParameterCommand,
     ParameterSubCommand,
     StatusCommand,
+    MeasureRawDataFormat,
 )
 from pyserial_client import PySerialJetiClient
 
@@ -380,6 +383,49 @@ class Spectrometer:
             subcommand=subcommand,
             args=args,
         )
+
+    def acquire_single_spectrum(
+        self,
+        tint: float,
+        averages: int,
+        data_format: MeasureRawDataFormat = MeasureRawDataFormat.SHORTS,
+    ) -> tuple[int, list[float]]:
+        """Acquire single spectrum. Returns a timestamp in microseconds and a list of counts"""
+        header = self._client._serial.read(4)
+        timestamp = self._client._serial.read(4)
+        footer = self._client._serial.read(4)
+        if len(header + timestamp + footer) != 12:
+            raise RuntimeError("could not properly read bytes before data")
+        timestamp = int(struct.unpack("I", timestamp)[0])
+        command = self._client._build_command(
+            CommandCategory.MEASURE,
+            MeasureCommand.RAW,
+            args=(str(tint), str(averages), str(data_format)),
+        )
+        self._client.write_command(command)
+        time.sleep(tint + tint * 1e-5)
+        return (timestamp, self._decode_spectrum(data_format))
+
+    def _decode_spectrum(self, data_format: MeasureRawDataFormat) -> list[float]:
+        match data_format:
+            case MeasureRawDataFormat.SHORTS:
+                return self._decode_spectrum_shorts()
+            case MeasureRawDataFormat.ASCII:
+                return self._decode_spectrum_ascii()
+            case MeasureRawDataFormat.WL_SHORTS:
+                return self._decode_spectrum_wl_shorts()
+
+    def _decode_spectrum_shorts(self) -> list[float]:
+        self._client.write_command("*PARA:PIXEL?")
+        n_pixels = int(self._client.read_text_line())
+        raw_bytes = self._client._serial.read(n_pixels)
+        return struct.unpack(f"{n_pixels}h", raw_bytes)[0]
+
+    def _decode_spectrum_ascii(self) -> list[float]:
+        raise NotImplementedError
+
+    def _decode_spectrum_wl_shorts(self) -> list[float]:
+        raise NotImplementedError
 
     def measure_light(self) -> int:
         """Perform the LIGHT measurement sequence."""
