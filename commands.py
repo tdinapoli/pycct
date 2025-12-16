@@ -205,3 +205,8 @@ class HelpCommand(_StrEnum):
     MMEM = "MMEM"
     MEAS = "MEAS"
     FETCH = "FETCH"
+
+class MeasureRawDataFormat(Enum):
+    SHORTS = 1
+    ASCII = 2 
+    WL_SHORTS = 3 #TODO: give this a proper name given by the data format
