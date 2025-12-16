@@ -433,7 +433,7 @@ class Spectrometer:
             self._client.write_command(f"*PARA:FIT{i}?")
             text_line = self._client.read_text_line()
             coefs.append(float(text_line))
-        pixels = list(range(self._n_pixels))
+        pixels = list(range(self.spec_params.pixels))
         result = list(np.polyval(coefs[::-1], pixels))
         self._client._serial.reset_input_buffer()
         return result
@@ -474,10 +474,12 @@ class Spectrometer:
                 return self._decode_spectrum_wl_shorts()
 
     def _decode_spectrum_shorts(self) -> list[float]:
-        raw_bytes = self._client._serial.read(self._n_pixels * struct.calcsize("h"))
+        raw_bytes = self._client._serial.read(
+            self.spec_params.pixels * struct.calcsize("h")
+        )
         return list(
             struct.unpack(
-                f"{(self._n_pixels - 1)}hh",
+                f"{(self.spec_params.pixels - 1)}hh",
                 raw_bytes,  # TODO: fix this
             )
         )
