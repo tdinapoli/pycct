@@ -1,7 +1,10 @@
 from enum import Enum
 import struct
 import time
+from enum import Enum
 from typing import Any, Iterable, Self
+
+import numpy as np
 
 from commands import (
     CalculateCommand,
@@ -382,6 +385,17 @@ class Spectrometer:
             subcommand=subcommand,
             args=args,
         )
+
+    def compute_wavelenghts(self) -> list[float]:
+        self._client.write_command("*PARA:PIXEL?")
+        n_pixels = int(self._client.read_text_line())
+        coefs = []
+        for i in range(5):
+            self._client.write_command(f"*PARA:FIT{i}?")
+            text_line = self._client.read_text_line()
+            coefs.append(float(text_line))
+        pixels = list(range(n_pixels))
+        return list(np.polyval(coefs[::-1], pixels))
 
     def acquire_single_spectrum(
         self,
