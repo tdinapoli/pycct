@@ -2,8 +2,10 @@ import struct
 import time
 from enum import Enum
 from typing import Any, Iterable, Self
+from dataclasses import dataclass
 
 import numpy as np
+from numpy.typing import NDArray
 
 from .commands import (
     CalculateCommand,
@@ -41,6 +43,20 @@ _FLOAT_RESPONSE_PARAMETERS = {
 _MULTI_LINE_RESPONSE_PARAMETERS = {ParameterCommand.ALLPARA}
 
 _BOOLEAN_RESPONSE_PARAMETERS = {ParameterCommand.LAMPE}
+
+
+@dataclass(frozen=True)
+class SpectrometerParams:
+    wavelengths: np.ndarray
+    fit_params: tuple[float, ...]
+    n_pixels: int
+    amplitude_correction: NDArray
+    version: str
+    model: str
+    devnum: str
+    gain: float
+    offset_mv: float
+    adc_resolution: int
 
 
 class Spectrometer:
