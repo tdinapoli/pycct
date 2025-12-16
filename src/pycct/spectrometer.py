@@ -467,6 +467,28 @@ class Spectrometer:
     def _decode_spectrum_wl_shorts(self) -> list[float]:
         raise NotImplementedError
 
+    def get_fit_constants(self) -> Sequence[float]:
+        results = []
+        try:
+            for i in itertools.count():
+                # TODO: change commands api to do this properly
+                self._client.write_command(f"*PARA:FIT{i}?")
+                result = float(self._client.read_text_line())
+                results.append(result)
+        except ValueError:
+            pass
+        return results
+
+    def get_vers(self) -> str:
+        self._client.write_command(
+            self._client._build_command(CommandCategory.GENERAL, GeneralCommand.VERS)
+        )
+        return self._client.read_text_line()
+
+    def get_amplitude_correction(self) -> NDArray[np.float64]:
+        # TODO: implement this
+        return np.array([])
+
     def measure_light(self) -> int:
         """Perform the LIGHT measurement sequence."""
         return self.measure(MeasureCommand.LIGHT, is_getter=False)
