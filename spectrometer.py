@@ -1,4 +1,3 @@
-from enum import Enum
 import struct
 import time
 from enum import Enum
@@ -23,10 +22,8 @@ from commands import (
     ParameterCommand,
     ParameterSubCommand,
     StatusCommand,
-    MeasureRawDataFormat,
 )
 from pyserial_client import PySerialJetiClient
-
 
 _FLOAT_RESPONSE_PARAMETERS = {
     ParameterCommand.ADCR,
@@ -394,15 +391,15 @@ class Spectrometer:
         )
 
     def compute_wavelenghts(self) -> list[float]:
-        self._client.write_command("*PARA:PIXEL?")
-        n_pixels = int(self._client.read_text_line())
         coefs = []
         for i in range(5):
             self._client.write_command(f"*PARA:FIT{i}?")
             text_line = self._client.read_text_line()
             coefs.append(float(text_line))
-        pixels = list(range(n_pixels))
-        return list(np.polyval(coefs[::-1], pixels))
+        pixels = list(range(self._n_pixels))
+        result = list(np.polyval(coefs[::-1], pixels))
+        self._client._serial.reset_input_buffer()
+        return result
 
     def acquire_single_spectrum(
         self,
@@ -411,20 +408,24 @@ class Spectrometer:
         data_format: MeasureRawDataFormat = MeasureRawDataFormat.SHORTS,
     ) -> tuple[int, list[float]]:
         """Acquire single spectrum. Returns a timestamp in microseconds and a list of counts"""
+        command = self._client._build_command(
+            CommandCategory.MEASURE,
+            MeasureCommand.RAW.value,
+            args=(str(tint), str(averages), str(data_format.value)),
+            is_getter=False,
+        )
+        self._client.write_command(command)
+        time.sleep(tint + tint * 1e-5)
+
         header = self._client._serial.read(4)
         timestamp = self._client._serial.read(4)
         footer = self._client._serial.read(4)
         if len(header + timestamp + footer) != 12:
             raise RuntimeError("could not properly read bytes before data")
         timestamp = int(struct.unpack("I", timestamp)[0])
-        command = self._client._build_command(
-            CommandCategory.MEASURE,
-            MeasureCommand.RAW,
-            args=(str(tint), str(averages), str(data_format)),
-        )
-        self._client.write_command(command)
-        time.sleep(tint + tint * 1e-5)
-        return (timestamp, self._decode_spectrum(data_format))
+        result = (timestamp, self._decode_spectrum(data_format))
+        self._client._serial.reset_input_buffer()
+        return result
 
     def _decode_spectrum(self, data_format: MeasureRawDataFormat) -> list[float]:
         match data_format:
@@ -436,10 +437,13 @@ class Spectrometer:
                 return self._decode_spectrum_wl_shorts()
 
     def _decode_spectrum_shorts(self) -> list[float]:
-        self._client.write_command("*PARA:PIXEL?")
-        n_pixels = int(self._client.read_text_line())
-        raw_bytes = self._client._serial.read(n_pixels)
-        return struct.unpack(f"{n_pixels}h", raw_bytes)[0]
+        raw_bytes = self._client._serial.read(self._n_pixels * struct.calcsize("h"))
+        return list(
+            struct.unpack(
+                f"{(self._n_pixels - 1)}hh",
+                raw_bytes,  # TODO: fix this
+            )
+        )
 
     def _decode_spectrum_ascii(self) -> list[float]:
         raise NotImplementedError
