@@ -850,7 +850,7 @@ class Spectrometer:
         """Set the PIXBIN (Pixel Binning factor that groups adjacent pixels together) parameter."""
         return self.write_parameter(ParameterCommand.PIXBIN, value)
 
-    def get_pixel(self) -> float:
+    def get_pixel(self) -> int:
         """Return the current PIXEL (Pixel index or value parameter exposed by the device) parameter."""
         return int(self.read_parameter(ParameterCommand.PIXEL))
 
