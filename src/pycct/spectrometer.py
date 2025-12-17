@@ -443,7 +443,8 @@ class Spectrometer:
         tint: float = 2.7,
         averages: int = 1,
         data_format: MeasureRawDataFormat = MeasureRawDataFormat.SHORTS,
-    ) -> tuple[int, list[float], list[float]]:
+        amplitude_corrected: bool = False,
+    ) -> tuple[int, NDArray[np.float64], NDArray[np.float64]]:
         """Acquire single spectrum. Returns a timestamp in microseconds, a list of wavelengths and a list of counts"""
         command = self._client._build_command(
             CommandCategory.MEASURE,
@@ -459,23 +460,29 @@ class Spectrometer:
         footer = self._client._serial.read(4)
         if len(header + timestamp + footer) != 12:
             raise RuntimeError("could not properly read bytes before data")
+
         timestamp = int(struct.unpack("I", timestamp)[0])
         result = (
             timestamp,
             self.spec_params.wavelengths,
-            self._decode_spectrum(data_format),
+            self._decode_spectrum(data_format)
+            if not amplitude_corrected
+            else self.spec_params.amplitude_correction
+            * self._decode_spectrum(data_format),
         )
         self._client._serial.reset_input_buffer()
         return result
 
-    def _decode_spectrum(self, data_format: MeasureRawDataFormat) -> list[float]:
+    def _decode_spectrum(
+        self, data_format: MeasureRawDataFormat
+    ) -> NDArray[np.float64]:
         match data_format:
             case MeasureRawDataFormat.SHORTS:
-                return self._decode_spectrum_shorts()
+                return np.array(self._decode_spectrum_shorts())
             case MeasureRawDataFormat.ASCII:
-                return self._decode_spectrum_ascii()
+                return np.array(self._decode_spectrum_ascii())
             case MeasureRawDataFormat.WL_SHORTS:
-                return self._decode_spectrum_wl_shorts()
+                return np.array(self._decode_spectrum_wl_shorts())
 
     def _decode_spectrum_shorts(self) -> list[float]:
         raw_bytes = self._client._serial.read(
