@@ -406,7 +406,7 @@ class Spectrometer:
     def read_params(self) -> SpectrometerParams:
         wavelengths = self.compute_wavelenghts()
         fit_constants = self.get_fit_constants()
-        pixels = int(self.read_parameter(ParameterCommand.PIXEL))
+        pixels = self.get_pixel()
         vers = self.get_vers()
         model = str(self.read_parameter(ParameterCommand.SPNUM))
         devnum = str(self.read_parameter(ParameterCommand.DEVNUM))
@@ -433,7 +433,7 @@ class Spectrometer:
             self._client.write_command(f"*PARA:FIT{i}?")
             text_line = self._client.read_text_line()
             coefs.append(float(text_line))
-        pixels = list(range(self.spec_params.pixels))
+        pixels = list(range(self.get_pixel()))
         result = list(np.polyval(coefs[::-1], pixels))
         self._client._serial.reset_input_buffer()
         return result
@@ -831,7 +831,7 @@ class Spectrometer:
 
     def get_pixel(self) -> float:
         """Return the current PIXEL (Pixel index or value parameter exposed by the device) parameter."""
-        return self.read_parameter(ParameterCommand.PIXEL)
+        return int(self.read_parameter(ParameterCommand.PIXEL))
 
     def set_pixel(self, value: str | Iterable[str]) -> bool:
         """Set the PIXEL (Pixel index or value parameter exposed by the device) parameter."""
