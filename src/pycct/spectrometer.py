@@ -76,6 +76,7 @@ class Spectrometer:
         )
 
         self.spec_params = self.read_params()
+        self._client._serial.reset_input_buffer()
 
     def __enter__(self) -> Self:
         self._client.__enter__()
