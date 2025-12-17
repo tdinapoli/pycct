@@ -513,7 +513,28 @@ class Spectrometer:
         return self._client.read_text_line()
 
     def get_amplitude_correction(self) -> NDArray[np.float64]:
-        # TODO: implement this
+        ampcorr = []
+        try:
+            for i in itertools.count():
+                command = self._build_command(
+                    CommandCategory.MEMORY,
+                    MemoryCommand.DATA,
+                    args=(f"ampcorrdata.{str(i).zfill(2)}",),
+                )
+                self._client.write_command(command)
+                self._client._serial.read(1)
+                rawsize_size = int(self._client._serial.read(1))
+                raw_size = int(self._client._serial.read(rawsize_size))
+                raw = self._client._serial.read(raw_size)
+                data_size = (len(raw)) // struct.calcsize("d")
+                data = struct.unpack(f"{data_size}d", raw)[
+                    1:
+                ]  # dropping the first value bc idk how to interpret it
+                ampcorr.extend(data)
+        except Exception:
+            pass
+        return ampcorr
+
         return np.array([])
 
     def measure_light(self) -> int:
