@@ -428,14 +428,14 @@ class Spectrometer:
             amplitude_correction=amplitude_correction,
         )
 
-    def compute_wavelenghts(self) -> list[float]:
+    def compute_wavelenghts(self) -> NDArray[np.float64]:
         coefs = []
         for i in range(5):
             self._client.write_command(f"*PARA:FIT{i}?")
             text_line = self._client.read_text_line()
             coefs.append(float(text_line))
-        pixels = list(range(self.get_pixel()))
-        result = list(np.polyval(coefs[::-1], pixels))
+        pixels = np.arange(self.get_pixel())
+        result = np.polyval(coefs[::-1], pixels)
         self._client._serial.reset_input_buffer()
         return result
 
