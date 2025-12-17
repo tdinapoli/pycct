@@ -2307,8 +2307,9 @@ packages:
   - python ==3.12
   - python *
   - pyserial >=3.5,<4
+  - numpy >=2.3.5,<3
   input:
-    hash: e0a385fff810cf3488d1d68f28ec6c8be420432073e3412a051177fab52bd2a6
+    hash: 5b75940fd29fa69707a6756cc2a36cec4df9f394ebf482da86d3318b8714a483
     globs:
     - pyproject.toml
 - conda: https://conda.anaconda.org/conda-forge/noarch/pygments-2.19.2-pyhd8ed1ab_0.conda

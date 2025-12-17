@@ -15,9 +15,9 @@ uv = "*"
 [package.run-dependencies]
 python = "==3.12"
 pyserial = ">=3.5,<4"
+numpy = ">=2.3.5,<3"
 
 [dependencies]
 pycct = { path = "." }
-numpy = ">=2.3.5,<3"
 matplotlib = ">=3.10.8,<4"
 ipykernel = ">=7.1.0,<8"
