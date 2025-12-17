@@ -315,7 +315,6 @@ class PySerialJetiClient:
 def parse_float_value(msg: str):
     try:
         result = re.findall(r"[0-9]+\.?[0-9]*|[0-9]*\.?[0-9]+", msg)
-        print(result)
         if len(result) == 0:
             raise ValueError(
                 f"Expected to find a floating point number, instead found '{msg}'"
