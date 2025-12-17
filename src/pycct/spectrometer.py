@@ -440,11 +440,11 @@ class Spectrometer:
 
     def acquire_single_spectrum(
         self,
-        tint: float,
-        averages: int,
+        tint: float = 2.7,
+        averages: int = 1,
         data_format: MeasureRawDataFormat = MeasureRawDataFormat.SHORTS,
     ) -> tuple[int, list[float], list[float]]:
-        """Acquire single spectrum. Returns a timestamp in microseconds and a list of counts"""
+        """Acquire single spectrum. Returns a timestamp in microseconds, a list of wavelengths and a list of counts"""
         command = self._client._build_command(
             CommandCategory.MEASURE,
             MeasureCommand.RAW.value,
