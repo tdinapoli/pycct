@@ -48,7 +48,7 @@ class CommandFactory:
             payload = f"{payload}:{subcommand}"
         if is_getter:
             payload = f"{payload}?"
-        elif args:
+        if args:
             payload = f"{payload} {' '.join(args)}"
         return f"*{prefix}{payload}"
 
