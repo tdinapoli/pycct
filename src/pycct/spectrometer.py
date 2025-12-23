@@ -458,8 +458,8 @@ class Spectrometer:
 
         header = self._client._serial.read(4)
         timestamp = self._client._serial.read(4)
-        footer = self._client._serial.read(4)
-        if len(header + timestamp + footer) != 12:
+        header_footer = self._client._serial.read(4)
+        if len(header + timestamp + header_footer) != 12:
             raise RuntimeError("could not properly read bytes before data")
 
         timestamp = int(struct.unpack("I", timestamp)[0])
