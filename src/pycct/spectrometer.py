@@ -454,7 +454,7 @@ class Spectrometer:
             is_getter=False,
         )
         self._client.write_command(command)
-        time.sleep(tint + tint * 1e-5)
+        time.sleep((tint + tint * 1e-5) / 1000)
 
         header = self._client._serial.read(4)
         timestamp = self._client._serial.read(4)
